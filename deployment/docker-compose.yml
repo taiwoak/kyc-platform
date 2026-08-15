@@ -1,0 +1,96 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-kyc_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-kyc_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kyc_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kyc_user} -d ${POSTGRES_DB:-kyc_platform}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ai-engine:
+    build:
+      context: ../ai-engine
+    environment:
+      AI_API_KEY: ${AI_ENGINE_API_KEY:-local-ai-engine-key}
+      AI_CORS_ORIGINS: '["http://localhost:5173","http://localhost:3000"]'
+      AI_VERIFIED_THRESHOLD: ${AI_VERIFIED_THRESHOLD:-80}
+      AI_REJECTED_THRESHOLD: ${AI_REJECTED_THRESHOLD:-55}
+    ports:
+      - "${AI_ENGINE_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../backend
+    environment:
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-development}
+      AI_ENGINE_URL: http://ai-engine:8000
+      AI_ENGINE_API_KEY: ${AI_ENGINE_API_KEY:-local-ai-engine-key}
+      UPLOADS_PATH: /app/storage/local
+      CORS_ORIGIN: http://localhost:5173
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-kyc_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-kyc_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kyc_password}
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-kyc-documents}
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    volumes:
+      - backend-uploads:/app/storage/local
+    depends_on:
+      ai-engine:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000/api}
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres-data:
+  minio-data:
+  backend-uploads:

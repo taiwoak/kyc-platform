@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+.env
+.agents/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+storage/local/
+uploads/
+models/*.onnx
+models/*.pt
+models/*.bin

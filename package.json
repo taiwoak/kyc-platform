@@ -1,0 +1,18 @@
+{
+  "name": "kyc-platform",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI-driven multi-modal KYC verification platform.",
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run start:dev",
+    "test:backend": "npm --prefix backend test",
+    "test:ai": "python -m pytest ai-engine/tests",
+    "compose:up": "docker compose -f deployment/docker-compose.yml up --build",
+    "compose:down": "docker compose -f deployment/docker-compose.yml down"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}
