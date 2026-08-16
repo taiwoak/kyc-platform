@@ -23,7 +23,7 @@ export class DocumentsService {
   }
 
   async updateExtractedText(documentId: string, extractedText: Record<string, unknown>): Promise<DocumentRecordEntity | null> {
-    await this.repo.update(documentId, { extractedText });
+    await this.repo.update(documentId, { extractedText: extractedText as any });
     return this.repo.findOne({ where: { documentId } });
   }
 }

@@ -91,7 +91,7 @@ export function VerificationResultPage() {
             <StatusPill status={status.toLowerCase()} />
           </div>
         </div>
-        <ScoreGauge score={score} label="Confidence" />
+        <ScoreGauge value={score} label="Confidence" />
       </div>
 
       {/* Module score grid */}
@@ -201,7 +201,7 @@ export function VerificationResultPage() {
         <button className="primary-button" onClick={() => navigate('/verify')} id="verify-again-button">
           Start New Verification
         </button>
-        <button className="secondary-button" onClick={() => navigate('/history')} id="view-history-button">
+        <button className="secondary-button" onClick={() => navigate('/dashboard')} id="view-history-button">
           View History
         </button>
       </div>

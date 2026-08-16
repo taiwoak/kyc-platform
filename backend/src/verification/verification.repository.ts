@@ -19,7 +19,7 @@ export class VerificationRepository {
   }
 
   async complete(verificationId: string, status: VerificationStatus, result: AiVerificationResponse): Promise<VerificationRequestEntity> {
-    await this.repo.update(verificationId, { verificationStatus: status, result });
+    await this.repo.update(verificationId, { verificationStatus: status, result: result as any });
     const record = await this.repo.findOne({ where: { verificationId } });
     if (!record) throw new Error('Verification request not found');
     return record;

@@ -2,7 +2,7 @@ export default () => ({
   port: Number(process.env.BACKEND_PORT ?? process.env.PORT ?? 3000),
   jwtSecret: process.env.JWT_SECRET ?? 'change-me-in-development',
   uploadsPath: process.env.UPLOADS_PATH ?? './storage/local',
-  aiEngineUrl: process.env.AI_ENGINE_URL ?? 'http://localhost:8000',
+  aiEngineUrl: process.env.AI_ENGINE_URL ?? 'http://127.0.0.1:8000',
   aiEngineApiKey: process.env.AI_ENGINE_API_KEY ?? 'local-ai-engine-key',
   // PostgreSQL
   postgresHost: process.env.POSTGRES_HOST ?? 'localhost',

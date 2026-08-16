@@ -96,11 +96,30 @@ class OcrService:
         _, otsu = cv2.threshold(gray_cv, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         otsu_pil = Image.fromarray(otsu)
 
+        # Color-based extraction (Targeting dark text on colored background)
+        green_channel = arr[:, :, 1]
+        _, green_otsu = cv2.threshold(green_channel, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        green_pil = Image.fromarray(green_otsu)
+        
+        # Dark pixel masking (Strict thresholding for black text)
+        dark_mask = (arr[:, :, 0] < 100) & (arr[:, :, 1] < 100) & (arr[:, :, 2] < 100)
+        dark_isolated = np.ones_like(gray_cv) * 255
+        dark_isolated[dark_mask] = 0
+        dark_pil = Image.fromarray(dark_isolated)
+
+        # LAB Color Space (Isolating Lightness)
+        lab = cv2.cvtColor(arr, cv2.COLOR_RGB2LAB)
+        l_channel, a_channel, b_channel = cv2.split(lab)
+        # The L channel represents lightness (0=black, 255=white)
+        # By thresholding just the lightness, we ignore the green color entirely
+        _, lab_otsu = cv2.threshold(l_channel, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        lab_pil = Image.fromarray(lab_otsu)
+
         # Deskew attempt via rotation
         deskewed = self._deskew(gray_cv)
         deskewed_pil = Image.fromarray(deskewed)
 
-        return [image, gray, high_contrast, sharp, denoised, adaptive_pil, otsu_pil, deskewed_pil]
+        return [image, gray, high_contrast, sharp, denoised, adaptive_pil, otsu_pil, green_pil, dark_pil, lab_pil, deskewed_pil]
 
     def _deskew(self, gray: np.ndarray) -> np.ndarray:
         """Straighten slightly tilted document images using HoughLines angle estimation."""

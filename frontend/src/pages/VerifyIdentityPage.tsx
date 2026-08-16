@@ -64,7 +64,7 @@ export function VerifyIdentityPage() {
         <div className="verify-step-banner">
           <div className="verify-step active">
             <span className="step-num">1</span>
-            <span>Upload NIN Slip</span>
+            <span>Upload ID Slip</span>
           </div>
           <div className="verify-step-connector" />
           <div className={`verify-step ${selfieFile ? 'active' : ''}`}>
