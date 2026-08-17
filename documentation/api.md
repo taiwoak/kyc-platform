@@ -9,8 +9,9 @@ Base URL: `http://localhost:3000/api`
 | `/auth/register` | `POST` | Public | Create a customer account and return a JWT |
 | `/auth/login` | `POST` | Public | Authenticate and return a JWT |
 | `/verification/requests` | `POST` | Authenticated | Submit `document` and `selfie` files for verification |
+| `/verification/nin-verify` | `POST` | Authenticated | Submit `nin` string and `selfie` file for direct biometric verification |
 | `/verification/history` | `GET` | Authenticated | List the signed-in customer's verification records |
-| `/verification/reviews` | `GET` | Officer, compliance officer, admin | List records requiring manual review |
+| `/verification/reviews` | `GET` | Officer, admin | List records requiring manual review |
 | `/verification/all` | `GET` | Admin | List all verification records |
 | `/users` | `GET` | Admin | List platform users |
 | `/audit` | `GET` | Admin | List audit events |
@@ -30,4 +31,5 @@ Protected endpoints require the `x-api-key` header.
 | `/document/analyze` | `POST` | Document quality and authenticity scoring |
 | `/face/verify` | `POST` | Compare document portrait and selfie |
 | `/liveness/check` | `POST` | Passive selfie liveness check |
-| `/verify` | `POST` | Full multi-modal verification workflow |
+| `/verify` | `POST` | Full multi-modal verification workflow (OCR + Document + Face + Liveness) |
+| `/verify-from-bytes` | `POST` | Direct facial verification from image bytes (Face + Liveness, bypasses OCR) |

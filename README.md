@@ -55,23 +55,47 @@ Copy-Item .env.example .env
 
 ---
 
-## Demo Flow
+## Supported Document Types
 
+The platform supports identity verification using documents that contain a portrait photo and biodata:
+- **NIN Slip** (National Identity Number)
+- **International Passport**
+- **Driver's License**
+- **Voter's Card**
+
+---
+
+## Demo Scenarios
+
+### Scenario A: Full Document Verification (OCR + Face Match)
 1. Login as **customer@kyc.local**
 2. Click **Verify Identity** in the sidebar
-3. Select document type **NIN Slip**
-4. Upload your NIN slip image
+3. Select **Identity Document** mode and choose one of the supported documents (e.g., International Passport)
+4. Upload your document image
 5. Click **Open Camera** → allow camera access → position face → **Capture Face**
 6. Click **Submit for Verification**
-7. View the result page showing:
-   - AI decision (VERIFIED / MANUAL_REVIEW / REJECTED)
-   - OCR extracted fields (Name, DOB, Gender, NIN)
-   - Module scores (OCR, Document, Face Match, Liveness)
-   - Detected anomalies
-8. Login as **officer@kyc.local** to see manual-review queue
-9. Login as **admin@kyc.local** to see all verifications and audit log
-10. Check MinIO at http://localhost:9001 → `kyc-documents` bucket to see uploaded files
-11. Connect a PostgreSQL client to `localhost:5432/kyc_platform` to inspect the database
+7. View the result page showing AI decisions, OCR fields, and Module scores (OCR, Document, Face Match, Liveness)
+
+### Scenario B: NIN Biometric Verification (Mock API + Face Match)
+*Note: This flow demonstrates bypassing traditional OCR by directly querying a national identity database.*
+1. Login as **customer@kyc.local**
+2. Click **Verify Identity** in the sidebar
+3. Switch the toggle to **NIN Biometric** mode
+4. Enter the mock NIN: `00000000001` (other inputs will simulate a failed lookup)
+5. Capture a live selfie
+6. Click **Submit for Verification**
+7. View the result page (Notice that OCR and Document scores are hidden, as the data is retrieved directly from the mock database).
+
+### Platform Administration
+8. Login as **officer@kyc.local** to see the manual-review queue for edge cases.
+9. Login as **admin@kyc.local** to see all verifications and audit logs.
+10. Check MinIO at http://localhost:9001 → `kyc-documents` bucket to see uploaded files.
+11. Connect a PostgreSQL client to `localhost:5432/kyc_platform` to inspect the database.
+
+---
+
+## Future Enhancements
+- **Live NIN API Integration**: The current NIN Biometric flow uses a mock service to simulate retrieving biodata and a baseline photo. The backend `NinMockService` is designed to be easily swappable with a live integration to a national identity API (like NIMC in Nigeria) without changing the core AI facial comparison logic.
 
 ---
 
