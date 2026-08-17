@@ -65,6 +65,15 @@ async def check_liveness(selfie_file: UploadFile = File(...)) -> LivenessRespons
     return await service.check_liveness(selfie_file)
 
 
+@router.post("/verify-from-bytes", response_model=VerificationResponse, dependencies=[Depends(require_api_key)])
+async def verify_from_bytes(
+    customer_id: str = Form(default="anonymous"),
+    document_file: UploadFile = File(...),
+    selfie_file: UploadFile = File(...),
+) -> VerificationResponse:
+    return await service.verify_from_bytes(document_file, selfie_file, customer_id)
+
+
 @router.post("/verify", response_model=VerificationResponse, dependencies=[Depends(require_api_key)])
 async def verify_identity(
     document_type: str = Form(default="NIN_SLIP"),

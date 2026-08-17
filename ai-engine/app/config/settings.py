@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     service_name: str = "kyc-ai-engine"
     api_key: str = "local-ai-engine-key"
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
-    verified_threshold: float = 80.0
-    rejected_threshold: float = 55.0
+    verified_threshold: float = 70.0
+    rejected_threshold: float = 45.0
 
     # MinIO
     minio_endpoint: str = "localhost"

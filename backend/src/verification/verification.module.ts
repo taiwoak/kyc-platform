@@ -10,6 +10,7 @@ import { AiEngineClient } from './ai-engine.client';
 import { VerificationController } from './verification.controller';
 import { VerificationRepository } from './verification.repository';
 import { VerificationService } from './verification.service';
+import { NinMockService } from './nin-mock.service';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { VerificationService } from './verification.service';
     TypeOrmModule.forFeature([VerificationRequestEntity]),
   ],
   controllers: [VerificationController],
-  providers: [AiEngineClient, VerificationRepository, VerificationService],
+  providers: [AiEngineClient, VerificationRepository, VerificationService, NinMockService],
 })
 export class VerificationModule {}

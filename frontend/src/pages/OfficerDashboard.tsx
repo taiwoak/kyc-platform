@@ -10,11 +10,25 @@ export function OfficerDashboard() {
   const { token } = useAuth();
   const [records, setRecords] = useState<VerificationRecord[]>([]);
 
-  useEffect(() => {
+  const loadQueue = () => {
     if (token) {
       void api.getReviewQueue(token).then(setRecords);
     }
+  };
+
+  useEffect(() => {
+    loadQueue();
   }, [token]);
+
+  const handleAction = async (id: string, status: 'VERIFIED' | 'REJECTED') => {
+    if (!token) return;
+    try {
+      await api.updateVerificationStatus(id, status, token);
+      loadQueue();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update status');
+    }
+  };
 
   return (
     <section className="workspace">
@@ -30,7 +44,13 @@ export function OfficerDashboard() {
               <StatusPill status={record.verificationStatus} />
               <p>{record.result?.detected_anomalies.join(', ') || 'No anomaly summary'}</p>
             </div>
-            <ScoreGauge value={record.result?.confidence_score ?? 0} label="Confidence" />
+            <div className="review-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <ScoreGauge value={record.result?.confidence_score ?? 0} label="Confidence" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <button className="primary-button" style={{ padding: '0.25rem 0.5rem' }} onClick={() => handleAction(record.verificationId, 'VERIFIED')}>Approve</button>
+                <button className="secondary-button" style={{ padding: '0.25rem 0.5rem', color: '#dc2626', borderColor: '#dc2626' }} onClick={() => handleAction(record.verificationId, 'REJECTED')}>Reject</button>
+              </div>
+            </div>
           </article>
         ))}
         {!records.length && <p className="empty-state">No manual review records</p>}

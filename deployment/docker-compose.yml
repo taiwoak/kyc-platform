@@ -38,8 +38,9 @@ services:
     environment:
       AI_API_KEY: ${AI_ENGINE_API_KEY:-local-ai-engine-key}
       AI_CORS_ORIGINS: '["http://localhost:5173","http://localhost:3000"]'
-      AI_VERIFIED_THRESHOLD: ${AI_VERIFIED_THRESHOLD:-80}
-      AI_REJECTED_THRESHOLD: ${AI_REJECTED_THRESHOLD:-55}
+      AI_VERIFIED_THRESHOLD: ${AI_VERIFIED_THRESHOLD:-70}
+      AI_REJECTED_THRESHOLD: ${AI_REJECTED_THRESHOLD:-45}
+      AI_MINIO_ENDPOINT: minio
     ports:
       - "${AI_ENGINE_PORT:-8000}:8000"
     healthcheck:

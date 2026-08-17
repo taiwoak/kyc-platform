@@ -1,3 +1,4 @@
+import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { useAuth } from '../contexts/AuthContext';
@@ -11,7 +12,7 @@ import { VerificationResultPage } from '../pages/VerificationResultPage';
 import { VerifyIdentityPage } from '../pages/VerifyIdentityPage';
 import { UserRole } from '../types/kyc';
 
-function RequireAuth({ children, roles }: { children: JSX.Element; roles?: UserRole[] }) {
+function RequireAuth({ children, roles }: { children: React.ReactElement; roles?: UserRole[] }) {
   const { user } = useAuth();
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -34,7 +35,7 @@ export function AppRoutes() {
         <Route path="result" element={<VerificationResultPage />} />
         <Route
           path="reviews"
-          element={<RequireAuth roles={['VERIFICATION_OFFICER', 'COMPLIANCE_OFFICER', 'ADMIN']}><OfficerDashboard /></RequireAuth>}
+          element={<RequireAuth roles={['VERIFICATION_OFFICER', 'ADMIN']}><OfficerDashboard /></RequireAuth>}
         />
         <Route path="admin" element={<RequireAuth roles={['ADMIN']}><AdminDashboard /></RequireAuth>} />
       </Route>

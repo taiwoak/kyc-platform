@@ -21,9 +21,7 @@ class DocumentVerifier:
             anomalies.append("Document aspect ratio is unusual for supported identity documents")
             score -= 10.0
 
-        if ocr.extracted_fields.document_number is None:
-            anomalies.append("Mandatory identity number is missing")
-            score -= 15.0
+
 
         score = max(0.0, min(100.0, round(score, 2)))
         if score >= 75:

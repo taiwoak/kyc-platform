@@ -13,6 +13,11 @@ class UpdateUserStatusDto {
   status!: UserStatus;
 }
 
+class UpdateUserRoleDto {
+  @IsIn([UserRole.Admin, UserRole.VerificationOfficer, UserRole.Customer])
+  role!: UserRole;
+}
+
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
@@ -28,5 +33,11 @@ export class UsersController {
   @Roles(UserRole.Admin)
   updateStatus(@Param('id') id: string, @Body() dto: UpdateUserStatusDto) {
     return this.usersService.updateStatus(id, dto.status);
+  }
+
+  @Patch(':id/role')
+  @Roles(UserRole.Admin)
+  updateRole(@Param('id') id: string, @Body() dto: UpdateUserRoleDto) {
+    return this.usersService.updateRole(id, dto.role);
   }
 }

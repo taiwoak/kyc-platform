@@ -12,8 +12,10 @@ export function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [records, setRecords] = useState<VerificationRecord[]>([]);
   const [events, setEvents] = useState<AuditEvent[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
-  useEffect(() => {
+  const loadData = () => {
     if (!token) {
       return;
     }
@@ -26,7 +28,24 @@ export function AdminDashboard() {
       setRecords(nextRecords);
       setEvents(nextEvents);
     });
+  };
+
+  useEffect(() => {
+    loadData();
   }, [token]);
+
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    if (!token) return;
+    try {
+      await api.updateUserRole(userId, newRole, token);
+      loadData(); // Refresh the list
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update role');
+    }
+  };
+
+  const totalPages = Math.ceil(records.length / itemsPerPage) || 1;
+  const currentRecords = records.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <section className="workspace">
@@ -45,7 +64,21 @@ export function AdminDashboard() {
             <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id}><td>{user.fullName}</td><td>{user.role}</td><td>{user.status}</td></tr>
+                <tr key={user.id}>
+                  <td>{user.fullName}</td>
+                  <td>
+                    <select
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      style={{ padding: '0.25rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+                    >
+                      <option value="CUSTOMER">Customer</option>
+                      <option value="VERIFICATION_OFFICER">Verification Officer</option>
+                      <option value="ADMIN">Admin</option>
+                    </select>
+                  </td>
+                  <td>{user.status}</td>
+                </tr>
               ))}
             </tbody>
           </table>
@@ -55,7 +88,7 @@ export function AdminDashboard() {
           <table>
             <thead><tr><th>Request</th><th>Status</th><th>Score</th></tr></thead>
             <tbody>
-              {records.slice(0, 8).map((record) => (
+              {currentRecords.map((record) => (
                 <tr key={record.verificationId}>
                   <td>{record.verificationId.slice(0, 8)}</td>
                   <td><StatusPill status={record.verificationStatus} /></td>
@@ -64,6 +97,27 @@ export function AdminDashboard() {
               ))}
             </tbody>
           </table>
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+              <button
+                className="secondary-button"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{ padding: '0.25rem 0.5rem' }}
+              >
+                Previous
+              </button>
+              <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Page {currentPage} of {totalPages}</span>
+              <button
+                className="secondary-button"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{ padding: '0.25rem 0.5rem' }}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </section>
       </div>
     </section>

@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { AuditEvent, AuthResponse, User, VerificationRecord } from '../types/kyc';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api';
@@ -57,5 +58,23 @@ export const api = {
   },
   getAuditEvents(token: string) {
     return request<AuditEvent[]>('/audit', {}, token);
+  },
+  updateVerificationStatus(id: string, status: string, token: string) {
+    return request<VerificationRecord>(`/verification/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }, token);
+  },
+  submitNinVerification(data: FormData, token: string) {
+    return request<VerificationRecord>('/verification/nin-verify', {
+      method: 'POST',
+      body: data,
+    }, token);
+  },
+  updateUserRole(id: string, role: string, token: string) {
+    return request<User>(`/users/${id}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    }, token);
   },
 };

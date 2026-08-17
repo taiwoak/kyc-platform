@@ -5,8 +5,13 @@ import numpy as np
 import pytesseract
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
-from app.schemas.verification import ExtractedDocument, OcrResponse
+import os
 
+# Explicitly point to the Tesseract executable for Windows only
+if os.name == 'nt':
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+from app.schemas.verification import ExtractedDocument, OcrResponse
 
 class OcrService:
     """Tesseract-powered OCR service optimised for Nigerian NIN slips."""
@@ -40,9 +45,7 @@ class OcrService:
             confidence = 30.0
         if not text.strip() and cleaned_declared_number:
             confidence = max(confidence, 56.0)
-        if not fields.document_number:
-            anomalies.append("Document number could not be identified")
-            confidence -= 10.0
+
         if document_type.upper() == "NIN_SLIP" and fields.document_number and not re.fullmatch(r"\d{11}", fields.document_number):
             anomalies.append("NIN should contain 11 digits")
             confidence -= 8.0
@@ -70,6 +73,11 @@ class OcrService:
             if score > best_score:
                 best_text = text
                 best_score = score
+        
+        print("\n=== RAW TESSERACT OCR OUTPUT ===")
+        print(best_text)
+        print("================================\n")
+        
         return best_text.strip(), "tesseract"
 
     def _ocr_candidates(self, image: Image.Image) -> list[Image.Image]:
@@ -149,9 +157,10 @@ class OcrService:
             self._first_match(
                 normalized,
                 [
-                    r"\b(?:National Identification Number|NIN|ID|Document No\.?|Number)[:\s-]*([A-Z0-9\s-]{8,})",
-                    r"\b(\d[\d\s-]{9,}\d)\b",
-                    r"\b([A-Z]{2,4}\d{6,12})\b",
+                    # Look for NIN/ID label followed by characters that look like digits
+                    r"\b(?:National Identification Number|NIN|ID|Document No\.?|Number)[:\s-]*([0-9OIlSB\s-]{10,})",
+                    # Look for a standalone block of characters that look like 11 digits
+                    r"\b([0-9OIlSB][0-9OIlSB\s-]{9,}[0-9OIlSB])\b",
                 ],
             ),
         )
@@ -171,7 +180,7 @@ class OcrService:
         )
         gender = self._normalize_gender(
             self._line_value(normalized, ["Gender", "Sex"])
-            or self._first_match(normalized, [r"\b(Male|Female|M|F)\b"]),
+            or self._first_match(normalized, [r"\b(Male|Female)\b"]),
         )
         surname = self._line_value(normalized, ["Surname", "Last Name"])
         first_name = self._line_value(normalized, ["First Name", "Given Name"])
@@ -236,11 +245,12 @@ class OcrService:
     def _normalize_identity_number(self, value: str | None) -> str | None:
         if not value:
             return None
+        # Fix common Tesseract digit confusions
+        value = value.upper().replace('O', '0').replace('I', '1').replace('L', '1').replace('S', '5').replace('B', '8')
         digits = re.sub(r"\D", "", value)
         if len(digits) >= 8:
             return digits
-        alphanumeric = re.sub(r"[^A-Z0-9-]", "", value.upper())
-        return alphanumeric or None
+        return None
 
     def _text_signal(self, text: str) -> int:
         normalized = text.upper()

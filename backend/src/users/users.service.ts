@@ -39,6 +39,12 @@ export class UsersService {
     return this.toPublicUser(user);
   }
 
+  async updateRole(id: string, role: UserRole): Promise<PublicUser> {
+    const user = await this.usersRepository.updateRole(id, role);
+    if (!user) throw new NotFoundException('User not found');
+    return this.toPublicUser(user);
+  }
+
   async seed(email: string, passwordHash: string, fullName: string, role: UserRole): Promise<PublicUser> {
     const user = await this.usersRepository.ensureSeed(email, passwordHash, fullName, role);
     return this.toPublicUser(user);

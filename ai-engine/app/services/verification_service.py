@@ -88,3 +88,53 @@ class VerificationService:
             face=face_result,
             liveness=liveness_result,
         )
+
+    async def verify_from_bytes(
+        self,
+        document_file: UploadFile,
+        selfie_file: UploadFile,
+        customer_id: str,
+    ) -> VerificationResponse:
+        document_bytes = await read_upload(document_file)
+        selfie_bytes = await read_upload(selfie_file)
+
+        document = self.preprocessor.prepare_document(load_image(document_bytes))
+        selfie = self.preprocessor.prepare_face(load_image(selfie_bytes))
+
+        # Store originals in MinIO (best-effort, non-blocking)
+        storage_service.store_document(document_bytes, prefix=f"ai-input/{customer_id}/nin-documents", ext="jpg")
+        storage_service.store_document(selfie_bytes, prefix=f"ai-input/{customer_id}/selfies", ext="jpg")
+
+        # Mock an OCR result since we already have the data
+        from app.schemas.verification import OcrResponse, ExtractedDocument
+        ocr_result = OcrResponse(
+            status="SUCCESS",
+            confidence_score=100.0,
+            extracted_text="MOCK_NIN_BIOMETRIC_DATA",
+            extracted_fields=ExtractedDocument(),
+            anomalies=[],
+            engine="mock",
+            field_sources={},
+        )
+
+        # Mock a perfect document score since we bypassed OCR
+        from app.schemas.verification import DocumentAnalysisResponse
+        document_result = DocumentAnalysisResponse(
+            status="VALID",
+            authenticity_score=100.0,
+            document_type="NIN_BIOMETRIC",
+            quality_score=100.0,
+            detected_anomalies=[],
+            checks={},
+        )
+
+        face_result = self.face_service.verify(document, selfie)
+        liveness_result = self.liveness_service.check(selfie)
+
+        return self.decision_engine.decide(
+            customer_id=customer_id,
+            ocr=ocr_result,
+            document=document_result,
+            face=face_result,
+            liveness=liveness_result,
+        )

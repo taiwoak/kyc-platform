@@ -12,7 +12,7 @@ export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 
   @Get()
-  @Roles(UserRole.Admin, UserRole.ComplianceOfficer)
+  @Roles(UserRole.Admin)
   list() {
     return this.auditService.list();
   }

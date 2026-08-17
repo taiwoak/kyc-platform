@@ -1,4 +1,4 @@
-export type UserRole = 'CUSTOMER' | 'VERIFICATION_OFFICER' | 'COMPLIANCE_OFFICER' | 'ADMIN';
+export type UserRole = 'CUSTOMER' | 'VERIFICATION_OFFICER' | 'ADMIN';
 export type VerificationStatus = 'PENDING' | 'PROCESSING' | 'VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW_REQUIRED' | 'FAILED';
 
 export interface User {

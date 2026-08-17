@@ -38,6 +38,11 @@ export class UsersRepository {
     return this.findById(id);
   }
 
+  async updateRole(id: string, role: UserRole): Promise<UserEntity | null> {
+    await this.repo.update(id, { role });
+    return this.findById(id);
+  }
+
   async ensureSeed(email: string, passwordHash: string, fullName: string, role: UserRole): Promise<UserEntity> {
     const existing = await this.findByEmail(email);
     if (existing) return existing;

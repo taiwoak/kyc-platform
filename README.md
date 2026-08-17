@@ -11,41 +11,22 @@
 
 ---
 
-## Step 1 – Start PostgreSQL and MinIO (Docker)
+## Step 1 – Start all services (Fully Dockerized)
+
+The entire platform (PostgreSQL, MinIO, AI Engine, Backend, and Frontend) is orchestrated via Docker Compose.
 
 ```powershell
 # From the project root
-docker compose -f deployment/docker-compose.yml up postgres minio -d
+docker compose -f deployment/docker-compose.yml up --build -d
 ```
 
-- PostgreSQL available at `localhost:5432` (auto-creates tables via TypeORM synchronize)
-- MinIO S3 API at `localhost:9000`
-- MinIO Console at `http://localhost:9001` (login: `minioadmin` / `minioadmin`)
+Wait a few moments for all containers to build and start. The AI Engine will automatically download the `buffalo_sc` model weights (~100 MB) on its first run inside the container.
 
 ---
 
-## Step 2 – Set up Python virtual environment and install AI dependencies
+## Step 2 – Configure environment variables (Optional for local dev)
 
-```powershell
-python -m venv ai-engine/.venv
-ai-engine/.venv/Scripts/pip install -r ai-engine/requirements.txt
-```
-
-On first run, InsightFace will download the `buffalo_sc` model weights (~100 MB).
-
----
-
-## Step 3 – Install Node.js dependencies
-
-```powershell
-npm install
-```
-
----
-
-## Step 4 – Configure environment variables
-
-Copy the example file (already populated with local demo defaults):
+If you want to run services outside of Docker for development, copy the example file:
 
 ```powershell
 Copy-Item .env.example .env
@@ -53,26 +34,7 @@ Copy-Item .env.example .env
 
 ---
 
-## Step 5 – Start all services
-
-**Terminal 1 – AI Engine (Python FastAPI)**
-```powershell
-ai-engine/.venv/Scripts/uvicorn app.main:app --app-dir ai-engine --reload --port 8000
-```
-
-**Terminal 2 – Backend (NestJS)**
-```powershell
-npm run dev:backend
-```
-
-**Terminal 3 – Frontend (Vite React)**
-```powershell
-npm run dev:frontend
-```
-
----
-
-## Step 6 – Access the demo
+## Step 3 – Access the demo
 
 | Service | URL |
 |---|---|

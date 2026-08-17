@@ -10,10 +10,10 @@ from app.schemas.verification import (
 
 class DecisionEngine:
     weights = {
-        "ocr": 0.2,
-        "document": 0.25,
-        "face": 0.35,
-        "liveness": 0.2,
+        "ocr": 0.10,       # Supporting signal — text extraction helps but isn't mandatory
+        "document": 0.20,  # Document image quality matters
+        "face": 0.45,      # Primary biometric — face match is the core check
+        "liveness": 0.25,  # Anti-spoofing — liveness must pass
     }
 
     def decide(
@@ -41,10 +41,12 @@ class DecisionEngine:
             *liveness.detected_anomalies,
         ]
 
+        # Critical failures: only biometric failures hard-reject.
+        # OCR failure is a soft signal — a real person can still be verified
+        # by their face even if the document text is unreadable.
+        # A document with NO face or a SPOOFED face is always rejected.
         critical_failure = (
-            ocr.status == "FAILED"
-            or document.status == "LOW_QUALITY"
-            or face.status == "FACE_NOT_FOUND"
+            face.status == "FACE_NOT_FOUND"
             or liveness.status == "FAILED"
         )
 

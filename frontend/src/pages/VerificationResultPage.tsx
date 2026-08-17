@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle2, XCircle, AlertTriangle, Clock, ShieldCheck } f
 
 import { ScoreGauge } from '../components/ScoreGauge';
 import { StatusPill } from '../components/StatusPill';
+import { VerificationStatus } from '../types/kyc';
 
 interface ModuleScores {
   ocr?: number;
@@ -70,7 +71,15 @@ export function VerificationResultPage() {
   const score = result?.confidence_score ?? 0;
   const fields = result?.extracted_fields ?? {};
   const anomalies = result?.detected_anomalies ?? [];
-  const modules = result?.module_scores ?? {};
+  
+  // NIN Biometric hides OCR and Document Authenticity since they are bypassed
+  const isNinBiometric = result?.metadata?.ocr_engine === 'mock';
+  
+  const modules = { ...result?.module_scores };
+  if (isNinBiometric) {
+    delete modules.ocr;
+    delete modules.document;
+  }
 
   return (
     <section className="workspace">
@@ -88,7 +97,7 @@ export function VerificationResultPage() {
           <div>
             <span className="quiet-label">Final Decision</span>
             <h2>{status.replace(/_/g, ' ')}</h2>
-            <StatusPill status={status.toLowerCase()} />
+            <StatusPill status={status as VerificationStatus} />
           </div>
         </div>
         <ScoreGauge value={score} label="Confidence" />
@@ -121,22 +130,22 @@ export function VerificationResultPage() {
       <div className="result-section">
         <h2 className="result-section-title">Verification Details</h2>
         <div className="detail-grid">
-          {result?.ocr_status && (
+          {!isNinBiometric && result?.ocr_status && (
             <div className="detail-item">
               <span className="detail-label">OCR Status</span>
-              <StatusPill status={result.ocr_status.toLowerCase()} />
+              <StatusPill status={result.ocr_status as VerificationStatus} />
             </div>
           )}
-          {result?.document_authenticity && (
+          {!isNinBiometric && result?.document_authenticity && (
             <div className="detail-item">
               <span className="detail-label">Document</span>
-              <StatusPill status={result.document_authenticity.toLowerCase()} />
+              <StatusPill status={result.document_authenticity as VerificationStatus} />
             </div>
           )}
           {result?.liveness_status && (
             <div className="detail-item">
               <span className="detail-label">Liveness</span>
-              <StatusPill status={result.liveness_status.toLowerCase()} />
+              <StatusPill status={result.liveness_status as VerificationStatus} />
             </div>
           )}
           {result?.face_similarity !== undefined && (

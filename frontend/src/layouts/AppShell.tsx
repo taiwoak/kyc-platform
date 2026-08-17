@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export function AppShell() {
   const { user, logout } = useAuth();
-  const isOfficer = user?.role === 'VERIFICATION_OFFICER' || user?.role === 'COMPLIANCE_OFFICER' || user?.role === 'ADMIN';
+  const isOfficer = user?.role === 'VERIFICATION_OFFICER' || user?.role === 'ADMIN';
   const isAdmin = user?.role === 'ADMIN';
 
   return (

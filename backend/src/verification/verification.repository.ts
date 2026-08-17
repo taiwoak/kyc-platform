@@ -25,6 +25,13 @@ export class VerificationRepository {
     return record;
   }
 
+  async updateStatus(verificationId: string, status: VerificationStatus): Promise<VerificationRequestEntity> {
+    await this.repo.update(verificationId, { verificationStatus: status });
+    const record = await this.repo.findOne({ where: { verificationId } });
+    if (!record) throw new Error('Verification request not found');
+    return record;
+  }
+
   async fail(verificationId: string): Promise<VerificationRequestEntity> {
     await this.repo.update(verificationId, { verificationStatus: VerificationStatus.Failed });
     const record = await this.repo.findOne({ where: { verificationId } });
@@ -34,6 +41,12 @@ export class VerificationRepository {
 
   listByUser(userId: string): Promise<VerificationRequestEntity[]> {
     return this.repo.find({ where: { userId }, order: { createdAt: 'DESC' } });
+  }
+
+  async findById(verificationId: string): Promise<VerificationRequestEntity> {
+    const record = await this.repo.findOne({ where: { verificationId } });
+    if (!record) throw new Error('Verification request not found');
+    return record;
   }
 
   listManualReview(): Promise<VerificationRequestEntity[]> {
