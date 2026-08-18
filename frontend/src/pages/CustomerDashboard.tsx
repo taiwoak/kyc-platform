@@ -1,5 +1,5 @@
 import { CheckCircle2, Clock, FileSearch, ShieldAlert } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { ScoreGauge } from '../components/ScoreGauge';
 import { StatTile } from '../components/StatTile';
@@ -8,6 +8,7 @@ import { useVerificationHistory } from '../hooks/useVerification';
 
 export function CustomerDashboard() {
   const { records, loading } = useVerificationHistory();
+  const navigate = useNavigate();
   const latest = records[0];
   const verified = records.filter((record) => record.verificationStatus === 'VERIFIED').length;
   const manual = records.filter((record) => record.verificationStatus === 'MANUAL_REVIEW_REQUIRED').length;
@@ -46,8 +47,14 @@ export function CustomerDashboard() {
           </thead>
           <tbody>
             {records.map((record) => (
-              <tr key={record.verificationId}>
-                <td>{record.verificationId.slice(0, 8)}</td>
+              <tr
+                key={record.verificationId}
+                onClick={() => navigate(`/review/${record.verificationId}`)}
+                style={{ cursor: 'pointer' }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg)'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <td style={{ color: 'var(--primary)' }}>{record.verificationId.slice(0, 8)}</td>
                 <td><StatusPill status={record.verificationStatus} /></td>
                 <td>{record.result ? `${Math.round(record.result.confidence_score)}%` : '-'}</td>
                 <td>{new Date(record.createdAt).toLocaleString()}</td>

@@ -8,8 +8,10 @@ import { CustomerDashboard } from '../pages/CustomerDashboard';
 import { LoginPage } from '../pages/LoginPage';
 import { OfficerDashboard } from '../pages/OfficerDashboard';
 import { RegisterPage } from '../pages/RegisterPage';
+import { VerificationDetailsPage } from '../pages/VerificationDetailsPage';
 import { VerificationResultPage } from '../pages/VerificationResultPage';
 import { VerifyIdentityPage } from '../pages/VerifyIdentityPage';
+import { AllVerificationsPage } from '../pages/AllVerificationsPage';
 import { UserRole } from '../types/kyc';
 
 function RequireAuth({ children, roles }: { children: React.ReactElement; roles?: UserRole[] }) {
@@ -37,6 +39,11 @@ export function AppRoutes() {
           path="reviews"
           element={<RequireAuth roles={['VERIFICATION_OFFICER', 'ADMIN']}><OfficerDashboard /></RequireAuth>}
         />
+        <Route
+          path="all-requests"
+          element={<RequireAuth roles={['VERIFICATION_OFFICER', 'ADMIN']}><AllVerificationsPage /></RequireAuth>}
+        />
+        <Route path="review/:id" element={<RequireAuth><VerificationDetailsPage /></RequireAuth>} />
         <Route path="admin" element={<RequireAuth roles={['ADMIN']}><AdminDashboard /></RequireAuth>} />
       </Route>
     </Routes>

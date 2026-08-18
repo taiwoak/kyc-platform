@@ -21,6 +21,7 @@ export interface ExtractedFields {
   document_number?: string;
   expiry_date?: string;
   address?: string;
+  [key: string]: any;
 }
 
 export interface AiResult {
@@ -36,6 +37,12 @@ export interface AiResult {
   detected_anomalies: string[];
   module_scores: Record<string, number>;
   timestamp: string;
+  metadata?: {
+    ocr_engine?: string;
+    face_method?: string;
+    review_notes?: string[];
+    [key: string]: any;
+  };
 }
 
 export interface VerificationRecord {

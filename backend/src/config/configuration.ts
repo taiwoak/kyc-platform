@@ -17,4 +17,6 @@ export default () => ({
   minioSecretKey: process.env.MINIO_ROOT_PASSWORD ?? 'minioadmin',
   minioBucket: process.env.MINIO_BUCKET ?? 'kyc-documents',
   minioSecure: process.env.MINIO_SECURE === 'true',
+  // The browser-accessible URL for MinIO presigned URLs (replaces internal Docker hostname)
+  minioPublicUrl: process.env.MINIO_PUBLIC_URL ?? 'http://localhost:9000',
 });

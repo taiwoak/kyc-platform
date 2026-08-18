@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger } from '@nestjs/common';
 
 import { AuditService } from '../audit/audit.service';
 import { VerificationStatus } from '../common/enums/verification-status.enum';
@@ -175,5 +175,43 @@ export class VerificationService {
 
   all() {
     return this.verificationRepository.listAll();
+  }
+
+  async getRecordById(id: string, requestingUserId: string, role: string) {
+    const record = await this.verificationRepository.findById(id);
+    // Customers can only view their own records
+    if (role === 'CUSTOMER' && record.userId !== requestingUserId) {
+      throw new ForbiddenException('You do not have access to this record');
+    }
+    return record;
+  }
+
+  async getImageUrls(id: string, requestingUserId: string, role: string) {
+    const record = await this.verificationRepository.findById(id);
+    if (!record) {
+      throw new BadRequestException('Verification record not found');
+    }
+    if (role === 'CUSTOMER' && record.userId !== requestingUserId) {
+      throw new ForbiddenException('You do not have access to this record');
+    }
+    
+    let documentUrl = null;
+    let selfieUrl = null;
+
+    try {
+      if (record.documentObjectKey) {
+        const b64 = await this.storageService.getObjectBase64(record.documentObjectKey);
+        // Assuming JPEG for simplicity; browsers handle data URIs well even if slightly mismatched
+        documentUrl = `data:image/jpeg;base64,${b64}`;
+      }
+      if (record.selfieObjectKey) {
+        const b64 = await this.storageService.getObjectBase64(record.selfieObjectKey);
+        selfieUrl = `data:image/jpeg;base64,${b64}`;
+      }
+    } catch (err) {
+      this.logger.error(`Failed to fetch images for record ${id}`, err);
+    }
+    
+    return { documentUrl, selfieUrl };
   }
 }

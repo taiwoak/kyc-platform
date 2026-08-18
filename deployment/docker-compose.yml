@@ -21,6 +21,9 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      # Tells MinIO its public URL so it accepts presigned URL signatures
+      # generated against localhost:9000 (the browser-accessible address)
+      MINIO_SERVER_URL: ${MINIO_PUBLIC_URL:-http://localhost:9000}
     ports:
       - "${MINIO_PORT:-9000}:9000"
       - "${MINIO_CONSOLE_PORT:-9001}:9001"
@@ -69,6 +72,7 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
       MINIO_BUCKET: ${MINIO_BUCKET:-kyc-documents}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost:9000}
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     volumes:

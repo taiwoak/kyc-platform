@@ -1,0 +1,238 @@
+{
+  "info": {
+    "name": "KYC Platform",
+    "description": "Comprehensive API collection for the KYC Platform Backend and AI Engine.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "ai_base_url", "value": "http://localhost:8000/api/v1", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "ai_api_key", "value": "local-ai-engine-key", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_url}}/auth/register", "host": [ "{{base_url}}" ], "path": [ "auth", "register" ] },
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"email\": \"jane@kyc.local\",\n  \"password\": \"Password123!\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if(jsonData.access_token) { pm.collectionVariables.set(\"token\", jsonData.access_token); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_url}}/auth/login", "host": [ "{{base_url}}" ], "path": [ "auth", "login" ] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"customer@kyc.local\",\n  \"password\": \"Password123!\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verification (Customer)",
+      "item": [
+        {
+          "name": "Submit Document & Selfie",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{base_url}}/verification/requests", "host": [ "{{base_url}}" ], "path": [ "verification", "requests" ] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "documentType", "value": "INTERNATIONAL_PASSPORT", "type": "text" },
+                { "key": "documentNumber", "value": "A12345678", "type": "text" },
+                { "key": "document", "type": "file", "src": [] },
+                { "key": "selfie", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Submit NIN Biometric",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{base_url}}/verification/nin-verify", "host": [ "{{base_url}}" ], "path": [ "verification", "nin-verify" ] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "nin", "value": "00000000001", "type": "text" },
+                { "key": "selfie", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Customer History",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{base_url}}/verification/history", "host": [ "{{base_url}}" ], "path": [ "verification", "history" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin & Officer",
+      "item": [
+        {
+          "name": "Get Manual Review Queue",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{base_url}}/verification/reviews", "host": [ "{{base_url}}" ], "path": [ "verification", "reviews" ] }
+          }
+        },
+        {
+          "name": "Get All Verifications (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{base_url}}/verification/all", "host": [ "{{base_url}}" ], "path": [ "verification", "all" ] }
+          }
+        },
+        {
+          "name": "Get Verification By ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": {
+              "raw": "{{base_url}}/verification/:id",
+              "host": [ "{{base_url}}" ],
+              "path": [ "verification", ":id" ],
+              "variable": [ { "key": "id", "value": "record-uuid-here" } ]
+            }
+          }
+        },
+        {
+          "name": "Get Verification Images",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": {
+              "raw": "{{base_url}}/verification/:id/images",
+              "host": [ "{{base_url}}" ],
+              "path": [ "verification", ":id", "images" ],
+              "variable": [ { "key": "id", "value": "record-uuid-here" } ]
+            }
+          }
+        },
+        {
+          "name": "Update Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/verification/:id/status",
+              "host": [ "{{base_url}}" ],
+              "path": [ "verification", ":id", "status" ],
+              "variable": [ { "key": "id", "value": "record-uuid-here" } ]
+            },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"VERIFIED\"\n}" }
+          }
+        },
+        {
+          "name": "Get Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{base_url}}/users", "host": [ "{{base_url}}" ], "path": [ "users" ] }
+          }
+        },
+        {
+          "name": "Update User Role (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/:id/role",
+              "host": [ "{{base_url}}" ],
+              "path": [ "users", ":id", "role" ],
+              "variable": [ { "key": "id", "value": "user-uuid-here" } ]
+            },
+            "body": { "mode": "raw", "raw": "{\n  \"role\": \"VERIFICATION_OFFICER\"\n}" }
+          }
+        },
+        {
+          "name": "Get Audit Events (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{base_url}}/audit", "host": [ "{{base_url}}" ], "path": [ "audit" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Engine (Direct)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{ai_base_url}}/health", "host": [ "{{ai_base_url}}" ], "path": [ "health" ] }
+          }
+        },
+        {
+          "name": "Full Multi-modal Verification",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "x-api-key", "value": "{{ai_api_key}}" } ],
+            "url": { "raw": "{{ai_base_url}}/verify", "host": [ "{{ai_base_url}}" ], "path": [ "verify" ] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "customer_id", "value": "test-customer-id", "type": "text" },
+                { "key": "document_type", "value": "NIN_SLIP", "type": "text" },
+                { "key": "document", "type": "file", "src": [] },
+                { "key": "selfie", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify From Bytes (Biometric Bypass)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "x-api-key", "value": "{{ai_api_key}}" } ],
+            "url": { "raw": "{{ai_base_url}}/verify-from-bytes", "host": [ "{{ai_base_url}}" ], "path": [ "verify-from-bytes" ] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "customer_id", "value": "test-customer-id", "type": "text" },
+                { "key": "photo", "type": "file", "src": [] },
+                { "key": "selfie", "type": "file", "src": [] }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

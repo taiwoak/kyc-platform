@@ -92,7 +92,7 @@ export class VerificationController {
   }
 
   @Get('all')
-  @Roles(UserRole.Admin)
+  @Roles(UserRole.VerificationOfficer, UserRole.Admin)
   all() {
     return this.verificationService.all();
   }
@@ -105,5 +105,21 @@ export class VerificationController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.verificationService.updateStatus(id, dto.status, user.sub);
+  }
+
+  @Get(':id')
+  getById(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.verificationService.getRecordById(id, user.sub, user.role);
+  }
+
+  @Get(':id/images')
+  getImages(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.verificationService.getImageUrls(id, user.sub, user.role);
   }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ScoreGauge } from '../components/ScoreGauge';
 import { StatusPill } from '../components/StatusPill';
@@ -8,6 +9,7 @@ import { VerificationRecord } from '../types/kyc';
 
 export function OfficerDashboard() {
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [records, setRecords] = useState<VerificationRecord[]>([]);
 
   const loadQueue = () => {
@@ -38,7 +40,14 @@ export function OfficerDashboard() {
       </div>
       <div className="review-list">
         {records.map((record) => (
-          <article className="review-item" key={record.verificationId}>
+          <article 
+            className="review-item" 
+            key={record.verificationId} 
+            onClick={() => navigate(`/review/${record.verificationId}`)}
+            style={{ cursor: 'pointer', transition: 'box-shadow 0.2s', border: '1px solid var(--border)' }}
+            onMouseOver={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'}
+            onMouseOut={(e) => e.currentTarget.style.boxShadow = 'none'}
+          >
             <div>
               <strong>{record.verificationId}</strong>
               <StatusPill status={record.verificationStatus} />
@@ -46,10 +55,7 @@ export function OfficerDashboard() {
             </div>
             <div className="review-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <ScoreGauge value={record.result?.confidence_score ?? 0} label="Confidence" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <button className="primary-button" style={{ padding: '0.25rem 0.5rem' }} onClick={() => handleAction(record.verificationId, 'VERIFIED')}>Approve</button>
-                <button className="secondary-button" style={{ padding: '0.25rem 0.5rem', color: '#dc2626', borderColor: '#dc2626' }} onClick={() => handleAction(record.verificationId, 'REJECTED')}>Reject</button>
-              </div>
+              <button className="primary-button" style={{ padding: '0.25rem 0.5rem' }}>Review Details</button>
             </div>
           </article>
         ))}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Activity, ShieldCheck, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Activity, FileSearch, ShieldCheck, Users } from 'lucide-react';
 
 import { StatTile } from '../components/StatTile';
 import { StatusPill } from '../components/StatusPill';
@@ -9,9 +10,11 @@ import { AuditEvent, User, VerificationRecord } from '../types/kyc';
 
 export function AdminDashboard() {
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [records, setRecords] = useState<VerificationRecord[]>([]);
   const [events, setEvents] = useState<AuditEvent[]>([]);
+  const [reviewQueue, setReviewQueue] = useState<VerificationRecord[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
@@ -23,10 +26,12 @@ export function AdminDashboard() {
       api.getUsers(token),
       api.getAllVerifications(token),
       api.getAuditEvents(token),
-    ]).then(([nextUsers, nextRecords, nextEvents]) => {
+      api.getReviewQueue(token),
+    ]).then(([nextUsers, nextRecords, nextEvents, nextQueue]) => {
       setUsers(nextUsers);
       setRecords(nextRecords);
       setEvents(nextEvents);
+      setReviewQueue(nextQueue);
     });
   };
 
@@ -56,6 +61,7 @@ export function AdminDashboard() {
         <StatTile icon={Users} label="Users" value={users.length} />
         <StatTile icon={ShieldCheck} label="Verifications" value={records.length} />
         <StatTile icon={Activity} label="Audit events" value={events.length} />
+        <StatTile icon={FileSearch} label="Pending reviews" value={reviewQueue.length} />
       </div>
       <div className="split-grid">
         <section className="table-surface">
@@ -89,8 +95,14 @@ export function AdminDashboard() {
             <thead><tr><th>Request</th><th>Status</th><th>Score</th></tr></thead>
             <tbody>
               {currentRecords.map((record) => (
-                <tr key={record.verificationId}>
-                  <td>{record.verificationId.slice(0, 8)}</td>
+                <tr 
+                  key={record.verificationId} 
+                  onClick={() => navigate(`/review/${record.verificationId}`)}
+                  style={{ cursor: 'pointer' }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <td style={{ color: 'var(--primary)' }}>{record.verificationId.slice(0, 8)}</td>
                   <td><StatusPill status={record.verificationStatus} /></td>
                   <td>{record.result ? Math.round(record.result.confidence_score) : '-'}</td>
                 </tr>

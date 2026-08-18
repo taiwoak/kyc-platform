@@ -65,6 +65,12 @@ export const api = {
       body: JSON.stringify({ status }),
     }, token);
   },
+  getVerificationById(id: string, token: string) {
+    return request<VerificationRecord>(`/verification/${id}`, {}, token);
+  },
+  getVerificationImages(id: string, token: string) {
+    return request<{ documentUrl: string | null; selfieUrl: string | null }>(`/verification/${id}/images`, {}, token);
+  },
   submitNinVerification(data: FormData, token: string) {
     return request<VerificationRecord>('/verification/nin-verify', {
       method: 'POST',
