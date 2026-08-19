@@ -210,8 +210,8 @@
               "formdata": [
                 { "key": "customer_id", "value": "test-customer-id", "type": "text" },
                 { "key": "document_type", "value": "NIN_SLIP", "type": "text" },
-                { "key": "document", "type": "file", "src": [] },
-                { "key": "selfie", "type": "file", "src": [] }
+                { "key": "document_file", "type": "file", "src": [] },
+                { "key": "selfie_file", "type": "file", "src": [] }
               ]
             }
           }
@@ -226,8 +226,66 @@
               "mode": "formdata",
               "formdata": [
                 { "key": "customer_id", "value": "test-customer-id", "type": "text" },
-                { "key": "photo", "type": "file", "src": [] },
-                { "key": "selfie", "type": "file", "src": [] }
+                { "key": "document_file", "type": "file", "src": [] },
+                { "key": "selfie_file", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "OCR Extraction",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "x-api-key", "value": "{{ai_api_key}}" } ],
+            "url": { "raw": "{{ai_base_url}}/ocr", "host": [ "{{ai_base_url}}" ], "path": [ "ocr" ] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "document_file", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Document Analysis",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "x-api-key", "value": "{{ai_api_key}}" } ],
+            "url": { "raw": "{{ai_base_url}}/document/analyze", "host": [ "{{ai_base_url}}" ], "path": [ "document", "analyze" ] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "document_type", "value": "NIN_SLIP", "type": "text" },
+                { "key": "document_file", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Facial Verification",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "x-api-key", "value": "{{ai_api_key}}" } ],
+            "url": { "raw": "{{ai_base_url}}/face/verify", "host": [ "{{ai_base_url}}" ], "path": [ "face", "verify" ] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "document_file", "type": "file", "src": [] },
+                { "key": "selfie_file", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Liveness Check",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "x-api-key", "value": "{{ai_api_key}}" } ],
+            "url": { "raw": "{{ai_base_url}}/liveness/check", "host": [ "{{ai_base_url}}" ], "path": [ "liveness", "check" ] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "selfie_file", "type": "file", "src": [] }
               ]
             }
           }
