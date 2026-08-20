@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
+import { MulterExceptionFilter } from './common/filters/multer-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +20,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalFilters(new MulterExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('KYC Platform Backend')

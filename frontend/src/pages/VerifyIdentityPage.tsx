@@ -44,6 +44,11 @@ export function VerifyIdentityPage() {
       setError('A valid 11-digit NIN is required for this mode');
       return;
     }
+    
+    if (documentFile && documentFile.size > 2 * 1024 * 1024) {
+      setError('Document file exceeds the maximum size of 2.0MB');
+      return;
+    }
 
     setSubmitting(true);
     setError('');
@@ -127,7 +132,7 @@ export function VerifyIdentityPage() {
                     <option value="PASSPORT">International Passport</option>
                   </select>
                 </label>
-                <label>Document number <span className="optional-tag">(optional – aids OCR)</span>
+                <label>Document number <span className="optional-tag">(optional)</span>
                   <input
                     value={documentNumber}
                     onChange={(e) => setDocumentNumber(e.target.value)}
@@ -139,6 +144,7 @@ export function VerifyIdentityPage() {
                 <FileDropzone
                   id="document"
                   label="Identity document (NIN Slip / Passport)"
+                  helpText="Max file size: 2.0MB"
                   file={documentFile}
                   onChange={setDocumentFile}
                 />

@@ -35,7 +35,7 @@ export class VerificationController {
         { name: 'document', maxCount: 1 },
         { name: 'selfie', maxCount: 1 },
       ],
-      { limits: { fileSize: 8 * 1024 * 1024 } },
+      { limits: { fileSize: 2 * 1024 * 1024 } },
     ),
   )
   submit(
@@ -59,7 +59,7 @@ export class VerificationController {
   @UseInterceptors(
     FileFieldsInterceptor(
       [{ name: 'selfie', maxCount: 1 }],
-      { limits: { fileSize: 8 * 1024 * 1024 } },
+      { limits: { fileSize: 2 * 1024 * 1024 } },
     ),
   )
   submitNinVerification(
